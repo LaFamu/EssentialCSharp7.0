@@ -1,0 +1,36 @@
+BubbleSort(items,
+          (int first,int second) =>
+          {
+            return first < second;
+          }        
+ );
+ 
+ //在语句Lambda中省略参数类型
+ BubbleSort(item,
+        (first,second) = >
+        {
+          return first < second;
+        }
+ );
+ 
+ //单个输入参数的语句Lambda
+ using System.Collections.Generic;
+ using System.Diagnostics;
+ using System.Linq;
+ 
+ IEnumberable<Process> process = Process.GetProcesses().Where(
+    process => {return process.WorkingSet64 > 10000000000;}
+ );
+ 
+ //无参语句Lambda
+ Func<string> getUserInput = 
+      () =>
+      {
+        string input;
+        do
+        {
+          input = Console.ReadLine();
+        }
+        while(input.Trim().Length == 0);
+        return input;
+      }
