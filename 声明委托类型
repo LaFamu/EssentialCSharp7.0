@@ -1,0 +1,16 @@
+//自.net3.5之后开始提供Action和Func委托，许多时候都无须定义自己的委托类型
+//，但是若能显著提高可读性，还是应该考虑声明自己的委托类型。
+
+public delegate bool Comparer(int first,int sencond);
+
+//基于新的委托类型，可用Compaeer替换Func<int,int,bool>来更新代码清单13.3的方法签名
+
+public static void BubbleSort(int[] items,Comparer compare)
+
+//就像类能够嵌套其他的类一样，委托也能嵌套在类中。如委托声明出现在另一个类的内部，委托类型就成为嵌套类型
+
+//声明嵌套委托类型
+class DelegateSample
+{
+  public delegate bool ComparisonHandler(int first,int second);
+}
