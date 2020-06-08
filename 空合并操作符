@@ -1,3 +1,2 @@
 string filename = GetFileName();
-
 string fullname = filename ?? "default.txt";
