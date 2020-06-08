@@ -1,0 +1,2 @@
+//使用表达式Lambda传递委托
+BubbleSort(items,(first,second) => first < second);
