@@ -1,0 +1,148 @@
+//这里我们使用Lambda表达式实现一些在JavaScript中流行的模式
+
+//1.回调模式
+void CreateTextBox()
+{
+    var tb = new TextBox();
+    tb.IsReadOnly = true;
+    tb.Text = "Please wait...";
+    DoSomeStuff(() => {
+            tb.Text = string.Empty;
+            tb.IsReadOnly = false;
+            });
+}
+
+void DoSomeStuff(Action callback)
+{
+    callback();
+}
+//上面的代码中，我们在DoSomeStuff完成之后，再做一些事情。这种写法在JavaScript中时很常见的，
+//jQuery中的Ajax的oncompleted,onsuccess不就是这样实现的么？又或者Linq扩展方法中的Foreach不也是这样的么？
+
+//2.返回方法
+//我们在JS中可以直接return一个方法，在.net中虽然不能直接返回方法，但是我们可以返回一个表达式
+Func<string,string> SayMyName(string language)
+{
+    switch(languag.ToLover())
+    {
+        case "fr":
+            return name => {
+                return "Je m'appelle " + name + ".";
+            };
+        case "de":
+            return name => {
+                return "Mein Name ist " + name + ".";
+            };
+        default:
+            return name => {
+                return "My name is " + name + ".";
+            }；
+    }
+}
+
+void Main()
+{
+    var lang = "de";
+    var smn = SayMyName(lang);
+    var name = Console.ReadLine();
+    var sentence = sum(name);
+    Console.WriteLine(sentence);
+}
+//是不是有一种策略模式的感觉？这还不够完美，这一堆的switch case看着就心烦，让我们用
+//Dictionary<TKey,TValue>来简化它。来看看这货：
+static class Translations
+{
+    static readonly Dictionary<string,Func<string,string>> smnFunctions = new Dictionary<string,Func<string,string>>();
+    
+    static Translations()
+    {
+        smnFucntions.Add("fr",name => "Je m'appelle " + name + ".");
+        smnFucntions.Add("fr",name => "Je m'appelle " + name + ".");
+        smnFucntions.Add("fr",name => "Je m'appelle " + name + ".");
+    }
+    
+    public static Func<string,string> GetSayMyName(string language)
+    {
+        return smnFunctions[language];
+    }
+}
+
+//3.自定义方法
+ //自定义方法在JS中比较常见，主要实现思路时这个方法被设置成一个属性。在给这个属性附值，
+ //甚至执行过程中我们可以随时更改这个属性的指向，从而达到改变这个方法的目的。
+ class SomeClass
+ {
+    public Func<int> NextPrime
+    {
+        get;
+        private set;
+    }
+    
+    int prime;
+    
+    public SomeClass
+    {
+        NextPrime = () => {
+            prime = 2;
+            NextPrime = () =>{<br>
+                return prime;
+            };
+            
+            return prime;
+        }
+    }
+ }
+ //上面的代码中当NextPrime第一次被调用的时候时2，与此同时，我们更改了NextPrime，我们可以把它指向
+ //另外的方法，和JS的灵活性比起来也不差吧？如果你还不满意，那下面的代码应该能满足你。
+ Action<int> loopBody = i => {
+    if(i == 1000)
+        loopBody = //把loopBody指向别的方法
+        
+        /*前10000次执行下面的代码*/
+ };
+ 
+ for(int j = 0;j < 10000000;j++)
+    loopBody(j);
+    
+//自执行方法
+//JS中的自执行方法有以下几个优势：
+//1.不会污染全局变量
+//2.保证自执行里面的方法只会被执行一次
+//3.解释完立即执行
+//在C#中我们也可以有自执行的方法：
+（（） => {
+    //Do Something here!
+}）();
+
+//上面的是没有参数的，如果你想要加入参数，也非常简单:
+((string s,int no) => {
+    //Do Something here!
+})("Example",8);
+//.Net4.5最闪的新功能是什么？async?这里也可以
+await(async(string s,int no) => {
+    //用Task异步执行这里的代码
+})("Example",8);
+
+//5.对象即时初始化
+//大家知道.net为我们提供了匿名对象，这使得我们可以像在JavaScript里面一样随意的创建我们想要对象。
+//但是别忘了，JavaScript里面可不仅可以放入数据，还可以放入方法，.net可以么？要相信，微软不会让我们失望的
+var person = new {
+    Name = "Jesse",
+    Age = 28,
+    Ask = (string question) => {
+        Console.WriteLine("The answer to '" + question + "' is certainly 42!");
+    }
+};
+person.Ask("Why are you doing this?");
+//但是如果你真的是运行这段代码，是会抛出异常的。问题就在这里，Lambda表达式时不允许赋值给
+//匿名对象的。但是委托可以，所以在这里我们只需要告诉编译器，我是一个什么类型的委托即可。
+var person = new
+{
+    Name = "Florian",
+    Age = 28,
+    Ask = (Action<string>)((string question) => {
+              Console.WriteLine("The answer tp '" + question + "' is certainly 42!");
+          })
+};
+//结果时连编译都通不过，因为person在我们的Lambda表达式这里还是没有定义的，当然不允许使用了，
+//但是在JavaScript里面是没有问题的，怎么办呢？.NET能行么？当然行，既然它要提前定义，我们就提前定义好了。
