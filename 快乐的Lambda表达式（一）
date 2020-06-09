@@ -1,0 +1,71 @@
+//内容源自于 腾飞的博客园文章 背后的故事之-快乐的Lambda表达式(一)(二)
+//https://www.cnblogs.com/jesse2013/p/happylambda.html
+
+//现在我们已经知道一些Lambda的基本用法了，但是如果仅仅就这些东西，那就不叫快乐的Lambda表达式了，
+//让我们看看下面的代码
+var a = 5;
+Func<int,int> multiplyWith = x => x*a;
+var result1 = multiplyWith(10);
+a = 10;
+var result2 = multiplyWith(10);
+//我们可以在Lambda表达式中用到外面的变量，没有错，这就是传说中的闭包啦。
+
+void DoSomeStuff()
+{
+    var coeff = 10;
+    Func<int,int> compute = x => coeff*x;
+    Action modifier = () =>
+    {
+        coeff = 5;
+    };
+    
+    var result1 = DoMoreStuff(compute);
+    
+    ModifyStuff(modifier);
+    
+    var result2 = DoMoreStuff(compute);
+}
+
+int DoMoreStuff(Func<int,int> computer)
+{
+    return computer(5);
+}
+
+void ModifyStuff(Action modifier)
+{
+    modifier();
+}
+
+//在上面的代码中，DoSomeStuff方法米年的变量coeff实际是有外部方法ModifyStuff修改的，也就是说
+//ModifyStuff这个方法拥有了访问DoSomeStuff里面一个局部变量的能力。它是如何做到的？我们马上会说的
+//当然，这个变量作用域的问题也是在使用闭包时应该注意的地方，稍有不慎就有可能会引发你想不到的后果。
+//看看下面这个你就知道了
+var buttons = new Button[10];
+
+for(var i = 0;i < buttons.Length;i++)
+{
+    var button = new Button();
+    button.Text = (i + 1) + ". Button - Click for Index!";
+    button.OnClick += (s,e) => {Messagebox.Show(i.ToString());};
+    buttons[i] = button;
+}
+//猜猜你点击这些按钮的结果是什么？是"1,2,3..."。但是，其实真正的结果是全部都显示10。为什么？
+//不明觉厉了吧？那么如何避免这种情况呢？
+var button = new Button();
+var index = i;
+button.Text = (i + 1) + ". Button -Click for Index!";
+button.OnClick += (s,e) => {Messagebox.Show(index.ToString());};
+buttons[i] = button;
+//其实做法很简单，就是在for的循环里面把当前的i保存下来，那么每一个表达式里面存储的值就不一样了
+
+//接下来，我们整点高级的或，和Lambda息息相关的表达式(Expression)。为什么说是息息相关呢，
+//因为我们可以用一个Expression将一个Lambda保存起来。并且允许我们在运行时去解释这个Lambda表达式。
+//来看一下下面简单的代码:
+Expression<Func<MyModel,int>> expr = model => model.MyProperty;
+var member = expr.Body as MemberExpression;
+var propertyName = member.Expression.Member.Name;
+//这个的确时Expression最简单的用法之一，我们用expr存储了后面的表达式。编译器会为我们生成表达式
+//树，在表达式树中包括了一个元数据像参数的类型，名称还有方法体等等。在Linq to sql中就是通过这种方法将我们
+//设置的条件通过where扩展方法传递给后面的linq to provider进行解释的，而Linq provider解释的过程
+//实际上就是将表达式树转换成sql语句的过程。
+
