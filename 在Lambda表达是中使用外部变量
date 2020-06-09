@@ -1,0 +1,30 @@
+//在Lambda表达式外部声明的局部变量(包括包容方法的参数)称为该Lambda的外部变量。(this引用虽然技术上说不是变量，但也被是为外部变量)。
+//如Lambda表达式主题使用一个外部变量，就说该变量被该Lambda表达式捕捉。
+
+class DelegateSample
+{
+  //...
+  static void Main(string[] args)
+  {
+    int i;
+    int[] items = new int[5];
+    int comparisonCount = 0;
+    for(i = 0;i<items.Length;i++)
+    {
+      Console.Write("Enter an integer:");
+      items[i] = int.Parse(Console.ReadLine());
+    }
+    BubbleSort(items,
+          (int first,int second) =>
+          {
+            comparisonCount++;
+            return first < second;
+          }
+        );
+    for(i = 0;i < items.Length;i++)
+    {
+      Console.WriteLine(items[i]);
+    }
+    Console.WriteLine($"Items Were compared {comparisonCount} items.");
+  }
+}
